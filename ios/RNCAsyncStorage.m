@@ -323,7 +323,11 @@ static void RCTStorageDirectoryMigrationCheck(NSString *fromStorageDirectory, NS
         }
     }
 
-    RCTStorageDirectoryMigrationCheck();
+     RCTStorageDirectoryMigrationCheck(RCTCreateStorageDirectoryPath_deprecated(RCTOldStorageDirectory), RCTCreateStorageDirectoryPath_deprecated(RCTStorageDirectory), YES);
+  
+    // Then migrate what's in "Documents/.../RCTAsyncLocalStorage_V1" to "Application Support/[bundleID]/RCTAsyncLocalStorage_V1"
+    RCTStorageDirectoryMigrationCheck(RCTCreateStorageDirectoryPath_deprecated(RCTStorageDirectory), RCTCreateStorageDirectoryPath(RCTStorageDirectory), NO);
+    
     return self;
 }
 
