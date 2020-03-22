@@ -87,7 +87,12 @@ static NSString *RCTCreateStorageDirectoryPath_deprecated(NSString *storageDir) 
   #if TARGET_OS_TV
     storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
   #else
-    storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    if (!AppGroupName) {
+          storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    } else {
+        NSURL * pathUrl = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier: AppGroupName];
+        storageDirectoryPath =  pathUrl.path;
+    }
   #endif
     storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:storageDir];
     return storageDirectoryPath;
@@ -302,18 +307,25 @@ static void RCTStorageDirectoryMigrationCheck(NSString *fromStorageDirectory, NS
 
 - (instancetype)init
 {
-  if (!(self = [super init])) {
-    return nil;
-  }
-
-  // First migrate our deprecated path "Documents/.../RNCAsyncLocalStorage_V1" to "Documents/.../RCTAsyncLocalStorage_V1"
-  RCTStorageDirectoryMigrationCheck(RCTCreateStorageDirectoryPath_deprecated(RCTOldStorageDirectory), RCTCreateStorageDirectoryPath_deprecated(RCTStorageDirectory), YES);
-  
-  // Then migrate what's in "Documents/.../RCTAsyncLocalStorage_V1" to "Application Support/[bundleID]/RCTAsyncLocalStorage_V1"
-  RCTStorageDirectoryMigrationCheck(RCTCreateStorageDirectoryPath_deprecated(RCTStorageDirectory), RCTCreateStorageDirectoryPath(RCTStorageDirectory), NO);
-
+  self = [self initWithGroup:(NSString *) nil];
+    
   return self;
 }
+
+- (instancetype)initWithGroup:(NSString *)group {
+
+    if (!self) {
+      self = [super init];
+    } else {
+        if (group) {
+            AppGroupName = group;
+        }
+    }
+
+    RCTStorageDirectoryMigrationCheck();
+    return self;
+}
+
 
 RCT_EXPORT_MODULE()
 

@@ -20,13 +20,13 @@
  *
  * Keys and values must always be strings or an error is returned.
  */
-@interface RNCAsyncStorage : NSObject <RCTBridgeModule,RCTInvalidating>
+@interface RNCAsyncStorage : NSObject <RCTBridgeModule, RCTInvalidating>
 
-@property (nonatomic, weak, nullable) id<RNCAsyncStorageDelegate> delegate;
+@property(nonatomic, weak, nullable) id<RNCAsyncStorageDelegate> delegate;
 
-@property (nonatomic, assign) BOOL clearOnInvalidate;
+@property(nonatomic, assign) BOOL clearOnInvalidate;
 
-@property (nonatomic, readonly, getter=isValid) BOOL valid;
+@property(nonatomic, readonly, getter=isValid) BOOL valid;
 
 // Clear the RNCAsyncStorage data from native code
 - (void)clearAllData;
@@ -39,5 +39,7 @@
 
 // Add multiple key value pairs to the cache.
 - (void)multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs callback:(RCTResponseSenderBlock)callback;
+
+- (instancetype)initWithGroup:(NSString *)group;
 
 @end
