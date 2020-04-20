@@ -88,12 +88,7 @@ static NSString *RCTCreateStorageDirectoryPath_deprecated(NSString *storageDir) 
   #if TARGET_OS_TV
     storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
   #else
-    if (!AppGroupName) {
-          storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
-    } else {
-        NSURL * pathUrl = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier: AppGroupName];
-        storageDirectoryPath =  pathUrl.path;
-    }
+    storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
   #endif
     storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:storageDir];
     return storageDirectoryPath;
@@ -101,9 +96,18 @@ static NSString *RCTCreateStorageDirectoryPath_deprecated(NSString *storageDir) 
 
 static NSString *RCTCreateStorageDirectoryPath(NSString *storageDir) {
   // We should use the "Application Support/[bundleID]" folder for persistent data storage that's hidden from users
-  NSString *storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject;
-  storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier]]; // Per Apple's docs, all app content in Application Support must be within a subdirectory of the app's bundle identifier
-  storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:storageDir];
+  NSString *storageDirectoryPath;
+   if (!AppGroupName) {
+          storageDirectoryPath = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES).firstObject;
+          storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:[[NSBundle mainBundle] bundleIdentifier]]; // Per Apple's docs, all app content in Application Support must be within a subdirectory of the app's bundle identifier
+          storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:storageDir];
+     } else {
+         NSLog(@"AppGroupName %@", AppGroupName);
+         NSURL * pathUrl = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier: AppGroupName];
+         storageDirectoryPath =  pathUrl.path;
+          storageDirectoryPath = [storageDirectoryPath stringByAppendingPathComponent:storageDir];
+         NSLog(@"storageDirectoryPath: %@ appGroupname: %@", storageDirectoryPath, AppGroupName);
+     }
   return storageDirectoryPath;
 }
 
